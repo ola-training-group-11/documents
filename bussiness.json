@@ -1,0 +1,858 @@
+
+
+[
+  { // sign up for customer, rest. manager
+    "endpoint": "signup",
+    "path": "/signup",
+    "method": "POST",
+    "request-data": {
+      "name": { // only for customer (option for rest. manager)
+        "type": "string",
+        "max": 30,
+        "required": true
+      },
+      "mobile": { 
+        "type": "integer",
+        "max": 10,
+        "required": true
+      },
+      "email": { 
+        "type": "string",
+        "max": 30,
+        "required": true
+      },
+      "country": {  // option for customer
+        "type": "string",
+        "max": 10,
+        "required": false
+      },
+      "city": { // option for customer
+        "type": "String",
+        "max": 30,
+        "required": true
+      },
+      "Restaurant Name": { //only for Restaurant Managers.
+        "type": "String",
+        "max": 30,
+        "required": true
+      },
+      "password": {
+        "type": "String",
+        "max": 30,
+        "required": true
+      }
+    },
+    "response": [
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": {
+            "flag": true,
+            "msg": "Registration successful"
+          }
+        }
+      },
+      {
+        "status": "client-error",
+        "response": {
+          "http-status": 404,
+          "response-data": {
+            "flag": false,
+            "msg": "user/restaraunt already exist with same username/email/mobile"
+          }
+        }
+      },
+
+      {
+        "status": "server-error",
+        "response": {
+          "http-status": 500,
+          "response-data": {
+            "flag": false,
+            "msg": "Internal server error"
+          }
+        }
+      }
+    ]
+  },
+  { // login for customer, rest. manager, admin
+    "endpoint": "login",
+    "path": "/login",
+    "method": "POST",
+    "request-data": {
+      "email": { // email can be also swap with mobile number in future
+        "type": "String",
+        "max": 30,
+        "required": true,
+        "unique": true
+      },
+      "password": {
+        "type": "String",
+        "max": 30,
+        "required": true
+      }
+    },
+    "response": [
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": {
+            "flag": true,
+            "msg": "login successful"
+          }
+        }
+      },
+      { // for customer / rest. manager
+        "status": "client-error",
+        "response": {
+          "http-status": 404,
+          "response-data": {
+            "flag": false,
+            "msg": "user not found with provided email" 
+          }
+        }
+      },
+      { // for admin(security purpose) , can also be used for customer/ manager
+        "status": "client-error",
+        "response": {
+          "http-status": 404,
+          "response-data": {
+            "flag": false,
+            "msg": "Invalid email or password" 
+          }
+        }
+      },
+      {
+        "status": "server-error",
+        "response": {
+          "http-status": 500,
+          "response-data": {
+            "flag": false,
+            "msg": "Internal server error"
+          }
+        }
+      }
+    ]
+  },
+    { // update status for orderId
+      "endpoint": "updateStatus",
+      "path": "/updateStatus",
+      "method": "POST",
+      "request-data": {
+        "orderId": {
+          "type": "integer",
+          "max": 10,
+          "required": true,
+          "unique": true
+        }
+      },
+      "response": [
+        {
+          "status": "success",
+          "response": {
+            "http-status": 200,
+            "response-data": {
+              "flag": true,
+              "msg": "ordered has been placed successfully"
+            }
+          }
+        },
+        {
+          "status": "client-error",
+          "response": {
+            "http-status": 404,
+            "response-data": {
+              "flag": false,
+              "msg": "ordered id invalid"
+            }
+          }
+        },
+
+        {
+          "status": "server-error",
+          "response": {
+            "http-status": 500,
+            "response-data": {
+              "flag": false,
+              "msg": "Internal server error"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "getOrders", //This is for admin. Another below is for store manager.
+      "path": "/getOrders",
+      "method": "POST",
+      "request-data": {
+        "restaurant_id": {
+          "type": "int",
+          "max": 10,
+          "required": true,
+          "unique": true
+        }
+      },
+      "response": [
+        {
+          "status": "success",
+          "response": {
+            "http-status": 200,
+            "response-data": {
+              "flag": true,
+              "msg": "total ordered list",
+              "data": [
+                {
+                  "orderId": {
+                    "type": "integer",
+                    "max": 10,
+                    "required": true,
+                    "unique": true
+                  },
+                  "customer_name":{
+                    "type": "string",
+                    "max": 30,
+                    "required": true,
+                    "unique": false
+                  },
+                  "customer_address":{
+                    "type": "string",
+                    "max": 30,
+                    "required": true,
+                    "unique": false
+                  },
+                  "dish_name":{
+                    "type": "string",
+                    "max": 30,
+                    "required": true,
+                    "unique": false
+                  }
+                }
+              ]
+            }
+          }
+        }
+        ,
+        {
+          "status": "client-error",
+          "response": {
+            "http-status": 404,
+            "response-data": {
+              "flag": false,
+              "msg": "invalid restaurant_id"
+            }
+          }
+        },
+        {
+          "status": "server-error",
+          "response": {
+            "http-status": 500,
+            "response-data": {
+              "flag": false,
+              "msg": "Internal server error"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "endpoint": "getRestaurants", //This endpoint is for admin. Admin won't send lat and long in request.
+      "path": "/getRestaurants",
+      "method": "GET",
+      "request_data": {
+        "latitude": {
+          "type": "double",
+          "max": 30,
+          "required" : true
+        },
+        "longitude": {
+          "type": "double",
+          "max": 30,
+          "required" : true
+        }
+      },
+      "response": {
+        "Restaurants" : [
+          {
+              "id": {
+                "type": "long",
+                "max" : 30,
+                "unique": true,
+                "required" : true
+              },
+              "name": {
+                "type": "string",
+                "max" : 50,
+                "unique": false,
+                "required" : true
+              },
+              "address": {
+                "type": "string",
+                "max" : 500,
+                "unique": false,
+                "required" : true
+              },
+              "ratings": {
+                "type": "long",
+                "max" : 5,
+                "default" : 0,
+                "unique": false,
+                "required" : true
+              },
+              "isActive": {
+                "type": "boolean",
+                "default": true
+              }
+          }
+        ]
+      }
+    },
+    {
+      "endpoint": "getOrders", //This is for store managers.
+      "path": "/getOrders",
+      "method": "GET",
+      "request_data": {
+        "orderId": {
+          "type": "long",
+          "max": 30,
+          "required" : true,
+          "unique" : true
+        }
+      },
+      "response": {
+        "Orders" : [
+          {
+            "Order1":{
+              "id": {
+                "type": "long",
+                "max" : 30,
+                "unique": true,
+                "required" : true
+              },
+              "items": [
+                {
+                    "name": {
+                      "type": "string",
+                      "max": 50,
+                      "unique": false,
+                      "required": true
+                    },
+                    "price": {
+                      "type": "double",
+                      "max": 30,
+                      "unique": false,
+                      "required": true
+                    },
+                    "isVeg": {
+                      "type": "boolean"
+                    },
+                    "restaurantId": {
+                      "type": "long",
+                      "max": 30,
+                      "unique": true,
+                      "required": true
+                    }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "endpoint": "banRestaurant",
+      "path": "/banRestaurant",
+      "method": "GET",
+      "request_data": {
+        "restaurantId":{
+          "type": "long",
+          "max": 30,
+          "required" : true,
+          "unique" : true
+        }
+      },
+      "response": [
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": {
+            "flag": true,
+            "msg": "Restaurant is banned",
+          }
+        }
+      },
+
+      { 
+        "status": "client-error",
+        "response": {
+          "http-status": 404,
+          "response-data": {
+            "flag": false,
+            "msg": "Restaurant  not banned  (invalid restaurantId)" 
+          }
+        }
+      },
+      {
+        "status": "server-error",
+        "response": {
+          "http-status": 500,
+          "response-data": {
+            "flag": false,
+            "msg": "Internal server error"
+          }
+        }
+      }
+    ]
+    },
+    {
+      "endpoint": "banUser",
+      "path": "/banUser",
+      "method": "GET",
+      "request_data": {
+        "userId":{
+          "type": "long",
+          "max": 30,
+          "required" : true,
+          "unique" : true
+        }
+      },
+      "response": [
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": {
+            "flag": true,
+            "msg": "user is banned",
+          }
+        }
+      },
+
+      { 
+        "status": "client-error",
+        "response": {
+          "http-status": 404,
+          "response-data": {
+            "flag": false,
+            "msg": "user  not banned  (invalid userId)" 
+          }
+        }
+      },
+      {
+        "status": "server-error",
+        "response": {
+          "http-status": 500,
+          "response-data": {
+            "flag": false,
+            "msg": "Internal server error"
+          }
+        }
+      }
+    ]
+    },
+
+  {
+    "endpoint": "makePayment",
+    "path": "/paymentMethod",
+    "method": "POST",
+    "request-data": {
+      "orderId": {
+        "type": "integer",
+        "max": 10,
+        "required": true,
+        "unique": true
+      }
+    },
+    "response": [
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": {
+            "flag": true,
+            "msg": "Payment is successful",
+            "payment_mode": {
+              "type": "string",
+              "max": 30,
+              "required": true,
+              "unique": false
+            },
+            "ordered_list": [
+              {
+                "order_id":{
+                  "type": "integer",
+                  "max": 10,
+                  "required": true,
+                  "unique": true
+                },
+                "dish_name":{
+                  "type": "string",
+                  "max": 30,
+                  "required": true,
+                  "unique": false
+                },
+                "ordered_address":{
+                  "type": "string",
+                  "max": 30,
+                  "required": true,
+                  "unique": false
+                },
+                "ordered_price":{
+                  "type": "double",
+                  "required": true,
+                  "unique": false
+                }
+              }
+            ],
+            "total_price":{
+              "type": "double",
+              "required": true,
+              "unique": false
+            }
+          }
+        }
+      },
+      {
+        "status": "client-error",
+        "response": {
+          "http-status": 404,
+          "response-data": {
+            "flag": false,
+            "msg": "ordered id invalid"
+          }
+        }
+      },
+
+      {
+        "status": "server-error",
+        "response": {
+          "http-status": 500,
+          "response-data": {
+            "flag": false,
+            "msg": "Internal server error"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "Place Order",
+    "path": "/placeOrder",
+    "method": "POST",
+    "request-data": {
+      "restaurantId": {
+        "type": "Long",
+        "required": true
+      },
+      "selectedItems": [
+        {
+          "itemId": {
+            "type": "Long",
+            "required": true
+          },
+          "quantity": {
+            "type": "Integer",
+            "required": true
+          }
+        }
+      ]
+    },
+    "response": [
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": {
+            "flag": true,
+            "message": "Order Placed!",
+            "order-details": {
+              "restaurantName": {
+                "type": "String",
+                "required": true
+              },
+              "selectedItems": [
+                {
+                  "selectedItem1": {
+                    "itemName": {
+                      "type": "String",
+                      "required": true
+                    },
+                    "quantity": {
+                      "type": "Integer",
+                      "required": true
+                    },
+                    "price": {
+                      "type": "Integer",
+                      "required": true
+                    }
+                  }
+                }
+              ],
+              "totalPrice": {
+                "type": "Integer",
+                "required": true
+              }
+            }
+          }
+        }
+      },
+      {
+        "status": "client-error",
+        "response": {
+          "http-status": 404,
+          "response-data": {
+            "flag": false,
+            "msg": "Client error.",
+            "order-details": null
+          }
+        }
+      },
+      {
+        "status": "server-error",
+        "response": {
+          "http-status": 500,
+          "response-data": {
+            "flag": false,
+            "msg": "Internal server error",
+            "order-details": null
+          }
+        }
+      }
+
+    ]
+  },
+
+
+
+  {
+    "endpoint": "trackOrder",
+    "path": "/trackOrder",
+    "method": "GET",
+    "request-data": {
+      "orderId":{
+        "type": "Integer",
+        "max": 10,
+        "required": true,
+        "unique": true
+      }
+    },
+    "response":[
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": {
+            "flag": true,
+            "msg":"Order is placed"
+          }
+        }
+      },
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data":{
+            "flag": true,
+            "msg": "Order In transit"
+          }
+        }
+      },
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": {
+            "flag": true,
+            "msg": "Order Delivered"
+          }
+        }
+      },
+      {
+        "status": "client-error",
+        "response": {
+          "http-status": 404,
+          "response-data": {
+            "flag": false,
+            "msg": "user not found"
+          }
+        }
+      },
+      {
+        "status": "server-error",
+        "response": {
+          "http-status": 500,
+          "response-data": {
+            "flag": false,
+            "msg": "Internal server error"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "logout",
+    "path": "/logout",
+    "method": "POST",
+    "request-data": {
+      "email":{
+        "type": "String",
+        "max": 50,
+        "required": true,
+        "notNull": true,
+        "unique": true
+      }
+    },
+    "response": [
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": {
+            "flag": true,
+            "msg": "logged out successfully"
+          }
+
+        }
+      },
+      {
+        "status": "client-error",
+        "response": {
+          "http-status": 404,
+          "response-data": {
+            "flag": false,
+            "msg": "something went wrong"
+          }
+        }
+      },
+      {
+        "status": "server error",
+        "response": {
+          "http-status": 500,
+          "response-data": {
+            "flag": false,
+            "msg": "Internal Server Error"
+          }
+        }
+      }
+    ]
+  },
+
+
+  {
+    "endpoint": "getFeed", //Since this is a common api, this will also pass userId or role in the request. According to the role, the feed will be customised.
+    "path": "/get",
+    "method": "GET",
+    "request-data": {
+      "Lat": {
+        "type": "String",
+        "required": true
+      },
+      "Long": {
+        "type": "String",
+        "required": true
+      }
+    },
+    "response": [
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": [
+            {
+              "restaurantName": {
+                "type": "String",
+                "required": true
+              }
+            }
+          ]
+        }
+      },
+      {
+        "status": "client-error",
+        "response": {
+          "http-status": 404,
+          "response-data": {
+            "flag": false,
+            "msg": "user not found"
+          }
+        }
+      },
+      {
+        "status": "server error",
+        "response": {
+          "http-status": 500,
+          "response-data": {
+            "flag": false,
+            "msg": "Internal Server Error"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "getItems",
+    "path": "/getItems",
+    "method": "GET",
+    "request-data": {
+      "restaurant_id": {
+        "type": "Integer",
+        "Max": 10,
+        "required": "true"
+      }
+    },
+    "response": [
+      {
+        "status": "success",
+        "response": {
+          "http-status": 200,
+          "response-data": {
+            "flag": true,
+            "Items": [
+              {
+                "Product_id": {
+                  "type": "integer",
+                  "required": "true",
+                  "max": 10
+                },
+                "Product_name": {
+                  "type": "string",
+                  "required": "true",
+                  "max": 30
+                },
+                "Product_Image": {
+                  "type": "URL"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "status": "client-error",
+          "response": {
+            "http-status": 404,
+            "response-data": {
+              "flag": false,
+              "msg": "No Product Found"
+            }
+          }
+      },
+      {
+        "status": "server-error",
+        "response": {
+          "http-status": 500,
+          "response-data": {
+            "flag": false,
+            "msg": "Internal server error"
+          }
+        }
+      }
+    ]
+  }
+]
+
+
+
